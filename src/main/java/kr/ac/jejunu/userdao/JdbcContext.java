@@ -22,9 +22,6 @@ public class JdbcContext {
         try {
             connection = dataSource.getConnection();
             preparedStatement = statementStrategy.makePreparedStatement(connection);
-//            preparedStatement = connection.prepareStatement("select * from userinfo where id = ?");
-//            preparedStatement.setLong(1, id);
-
             resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
@@ -63,21 +60,17 @@ public class JdbcContext {
         try {
             connection = dataSource.getConnection();
             preparedStatement = statementStrategy.makePreparedStatement(connection);
-//            preparedStatement = connection.prepareStatement("insert into userinfo(name, password) values (?, ?)");
-//            preparedStatement.setString(1, user.getName());
-//            preparedStatement.setString(2, user.getPassword());
-
             preparedStatement.executeUpdate();
 
             id = GetLastInsertId(connection);
         } finally {
-            if(preparedStatement != null)
+            if (preparedStatement != null)
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            if(connection != null)
+            if (connection != null)
                 try {
                     connection.close();
                 } catch (SQLException e) {
@@ -93,20 +86,15 @@ public class JdbcContext {
         try {
             connection = dataSource.getConnection();
             preparedStatement = statementStrategy.makePreparedStatement(connection);
-//            preparedStatement = connection.prepareStatement("update userinfo set name = ?, password = ? where id = ?");
-//            preparedStatement.setString(1, user.getName());
-//            preparedStatement.setString(2, user.getPassword());
-//            preparedStatement.setLong(3, user.getId());
-
             preparedStatement.executeUpdate();
         } finally {
-            if(preparedStatement != null)
+            if (preparedStatement != null)
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            if(connection != null)
+            if (connection != null)
                 try {
                     connection.close();
                 } catch (SQLException e) {
@@ -115,30 +103,34 @@ public class JdbcContext {
         }
     }
 
-    void jdbcContextForDelete(StatementStrategy statementStrategy) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = dataSource.getConnection();
-            preparedStatement = statementStrategy.makePreparedStatement(connection);
-//            preparedStatement = connection.prepareStatement("delete from userinfo where id = ?");
-//            preparedStatement.setLong(1, id);
+    public void update(String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for(int i = 0; i < params.length; i++)
+                preparedStatement.setObject(i+1, params[i]);
+            return preparedStatement;
+        };
+        jdbcContextForUpdate(statementStrategy);
+    }
 
-            preparedStatement.executeUpdate();
-        } finally {
-            if(preparedStatement != null)
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            if(connection != null)
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-        }
+    User get(String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for(int i = 0; i < params.length; i++)
+                preparedStatement.setObject(i+1, params[i]);
+            return preparedStatement;
+        };
+        return jdbcContextForGet(statementStrategy);
+    }
+
+    Long add(String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for(int i = 0; i < params.length; i++)
+                preparedStatement.setObject(i+1, params[i]);
+            return preparedStatement;
+        };
+        return jdbcContextForAdd(statementStrategy);
     }
 
     public Long GetLastInsertId(Connection connection) throws SQLException {
