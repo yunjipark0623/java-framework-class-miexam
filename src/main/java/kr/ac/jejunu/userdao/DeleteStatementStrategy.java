@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 public class DeleteStatementStrategy implements StatementStrategy {
     private Long id;
+
     public DeleteStatementStrategy(Long id) {
         this.id = id;
     }

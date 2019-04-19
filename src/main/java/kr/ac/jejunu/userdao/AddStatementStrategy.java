@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 public class AddStatementStrategy implements StatementStrategy {
     private User user;
+
     public AddStatementStrategy(User user) {
         this.user = user;
     }
